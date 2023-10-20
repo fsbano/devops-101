@@ -1,2 +1,1 @@
-# 101-DevOps
-become-devops
+# DevOps - 101
