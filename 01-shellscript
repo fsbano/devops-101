@@ -5,7 +5,6 @@ WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
 
 wildfly()
 {
-  WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
   VERSION="${1:-latest}"
   if [ $VERSION != "latest" ]
   then
