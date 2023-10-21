@@ -27,7 +27,9 @@ wildfly()
       | tail -1
     )
   fi
-  echo "wildfly-${VERSION}.Final.zip"
+  echo "wildfly-${VERSION}.Final.zip" | egrep -ow 'wildfly-[0-9]{1,}.(.[0-9]){1,}?.?(Final).zip'
+  [ $? -eq 1 ] && echo "File not found"
+
   curl -OL --progress-bar "${WILDFLY_BASE_URL}/${VERSION}.Final/wildfly-${VERSION}.Final.zip"
   if [ $DOWNLOADONLY -eq 0 ]
   then
