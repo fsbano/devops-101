@@ -2,10 +2,10 @@
 
 ### Getting WildFly Latest Version and run the entire script
 ```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/fsbano/become-devops/main/01-shellscript)"
+curl -fsSL https://raw.githubusercontent.com/fsbano/become-devops/main/01-shellscript | bash -s /dev/null
 ```
 
 ### Getting WildFly v29.0.1 and just downloading it doesn't run the entire script
 ```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/fsbano/become-devops/main/01-shellscript | bash -s /dev/null -v 29.0.1 -d )"
+curl -fsSL https://raw.githubusercontent.com/fsbano/become-devops/main/01-shellscript | bash -s /dev/null '-v 29.0.1 -d'
 ```
