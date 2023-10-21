@@ -5,7 +5,14 @@ WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
 
 wildfly()
 {
-  VERSION="${1:-latest}"
+  echo $1 | egrep "donwload-only" &>/dev/null
+  if [ $? -eq 0 ]
+  then
+    VERSION="latest"
+    downloadonly=1
+  fi
+  WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
+  VERSION="${VERSION:-latest}"
   if [ $VERSION != "latest" ]
   then
     VERSION=$( curl ${WILDFLY_BASE_URL_DOWNLOAD} 2>/dev/null \
@@ -30,9 +37,12 @@ wildfly()
   fi
   echo "wildfly-${VERSION}.Final.zip"
   curl -OL --progress-bar "${WILDFLY_BASE_URL}/${VERSION}.Final/wildfly-${VERSION}.Final.zip"
-  extract "wildfly-${VERSION}.Final.zip"
-  start "wildfly-${VERSION}.Final"
-  cleanup
+  if [ "${downloadonly}" -eq 0 ]
+  then
+    extract "wildfly-${VERSION}.Final.zip"
+    start "wildfly-${VERSION}.Final"
+    cleanup
+  fi
 }
 
 extract() {
@@ -73,8 +83,12 @@ main()
        "-v")
          shift
          wildfly "$1"
+       ;;
+       "-d")
+         wildfly "download-only"
+       ;;
     esac
-          shift
+    shift
   done
   exit 0
 }
