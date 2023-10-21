@@ -35,7 +35,7 @@ wildfly()
     start "wildfly-${VERSION}.Final"
     cleanup
   else
-    file "wildfly-${VERSION}.Final.zip"
+    echo "wildfly-${VERSION}.Final.zip"
   fi
 }
 
