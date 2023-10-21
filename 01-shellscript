@@ -5,14 +5,6 @@ WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
 
 wildfly()
 {
-  echo $1 | egrep "donwload-only" &>/dev/null
-  if [ $? -eq 0 ]
-  then
-    VERSION="latest"
-    downloadonly=1
-  fi
-  WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
-  VERSION="${VERSION:-latest}"
   if [ $VERSION != "latest" ]
   then
     VERSION=$( curl ${WILDFLY_BASE_URL_DOWNLOAD} 2>/dev/null \
@@ -37,7 +29,7 @@ wildfly()
   fi
   echo "wildfly-${VERSION}.Final.zip"
   curl -OL --progress-bar "${WILDFLY_BASE_URL}/${VERSION}.Final/wildfly-${VERSION}.Final.zip"
-  if [ "${downloadonly}" -eq 0 ]
+  if [ $DOWNLOADONLY -eq 0 ]
   then
     extract "wildfly-${VERSION}.Final.zip"
     start "wildfly-${VERSION}.Final"
@@ -77,19 +69,20 @@ main()
   do
     case $1 in
        "-i")
-         read -p "Qual versão do WildFly você deseja fazer download: " version
-         wildfly "$version"
+         read -p "Qual versão do WildFly você deseja fazer download: " VERSION
        ;;
        "-v")
          shift
-         wildfly "$1"
+         VERSION=$1
        ;;
        "-d")
-         wildfly "download-only"
+         DOWNLOADONLY=1
        ;;
     esac
     shift
   done
+
+  wildfly "${VERSION:=latest} ${DOWNLOADONLY:=0}"
   exit 0
 }
 
