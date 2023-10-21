@@ -34,7 +34,7 @@ wildfly()
     extract "wildfly-${VERSION}.Final.zip"
     start "wildfly-${VERSION}.Final"
     cleanup
-  else 
+  else
     file "wildfly-${VERSION}.Final.zip"
   fi
 }
@@ -65,8 +65,6 @@ cleanup()
 
 main()
 {
-  [ $# -eq 0 ] && wildfly
-
   while [ $# -ne 0 ]
   do
     case $1 in
