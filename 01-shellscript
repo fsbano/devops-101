@@ -34,6 +34,8 @@ wildfly()
     extract "wildfly-${VERSION}.Final.zip"
     start "wildfly-${VERSION}.Final"
     cleanup
+  else 
+    file "wildfly-${VERSION}.Final.zip"
   fi
 }
 
