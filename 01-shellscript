@@ -5,7 +5,7 @@ WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
 
 wildfly()
 {
-  if [ $VERSION != "latest" ]
+ if [ $VERSION != "latest" ]
   then
     VERSION=$( curl ${WILDFLY_BASE_URL_DOWNLOAD} 2>/dev/null \
       | egrep -i \.zip \
@@ -24,21 +24,33 @@ wildfly()
       | sort \
       | uniq \
       | egrep -o '[0-9]{1,}(.[0-9]){1,}' \
-      | tail -1
+      | tail -3
     )
   fi
-  echo "wildfly-${VERSION}.Final.zip" | egrep -ow 'wildfly-[0-9]{1,}.(.[0-9]){1,}?.?(Final).zip'
-  [ $? -eq 1 ] && echo "File not found" && exit 1
 
-  curl -OL --progress-bar "${WILDFLY_BASE_URL}/${VERSION}.Final/wildfly-${VERSION}.Final.zip"
+  for VERSION in ${VERSION}
+   do
+     echo "wildfly-${VERSION}.Final.zip" | egrep -ow 'wildfly-[0-9]{1,}.(.[0-9]){1,}?.?(Final).zip'
+     [ $? -eq 1 ] && echo "File not found" && exit 1
+     download_manager "${WILDFLY_BASE_URL}/${VERSION}.Final/wildfly-${VERSION}.Final.zip" &
+   done
+
+}
+
+download_manager()
+{
+  FILENAME=$( echo "$1" | awk -F "/" '{ print $NF }' )
+  curl -OL --progress-bar "$1"
+
   if [ $DOWNLOADONLY -eq 0 ]
   then
-    extract "wildfly-${VERSION}.Final.zip"
-    start "wildfly-${VERSION}.Final"
+    extract "${FILENAME}"
+    start "$( echo ${FILENAME} | sed -e 's/\.zip//g' )"
     cleanup
   else
-    file "wildfly-${VERSION}.Final.zip"
+    file "${FILENAME}"
   fi
+
 }
 
 extract() {
@@ -67,6 +79,7 @@ cleanup()
 
 main()
 {
+  rm -f *.{zip}
   while [ $# -ne 0 ]
   do
     case $1 in
