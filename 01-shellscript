@@ -6,43 +6,48 @@ WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
 wildfly()
 {
   WILDFLY_BASE_URL_DOWNLOAD="https://www.wildfly.org/downloads/"
-  VERSION=$( curl ${WILDFLY_BASE_URL_DOWNLOAD} 2>/dev/null \
-           | egrep -i \.zip \
-           | egrep -ow '"(http?(s)://.*.zip)"' \
-           | egrep -o 'wildfly-[0-9]{1,}.(.[0-9]){1,}?.?(Final).zip' \
-           | sort \
-           | uniq \
-           | egrep -o '[0-9]{1,}(.[0-9]){1,} &>/dev/null'
-)
-  echo "${VERSION}" | egrep -ow "${1}" &>/dev/null
-  if [ $? -eq 0 ]
+  VERSION="${1:-latest}"
+  if [ $VERSION != "latest" ]
   then
-    echo "wildfly-${1}.Final.zip"
-    curl -OL --progress-bar "${WILDFLY_BASE_URL}/${1}.Final/wildfly-${1}.Final.zip"
+    VERSION=$( curl ${WILDFLY_BASE_URL_DOWNLOAD} 2>/dev/null \
+      | egrep -i \.zip \
+      | egrep -ow '"(http?(s)://.*.zip)"' \
+      | egrep -o 'wildfly-[0-9]{1,}.(.[0-9]){1,}?.?(Final).zip' \
+      | sort \
+      | uniq \
+      | egrep -o '[0-9]{1,}(.[0-9]){1,}' \
+      | egrep "${VERSION}"
+    )
+  else
+     VERSION=$( curl ${WILDFLY_BASE_URL_DOWNLOAD} 2>/dev/null \
+      | egrep -i \.zip \
+      | egrep -ow '"(http?(s)://.*.zip)"' \
+      | egrep -o 'wildfly-[0-9]{1,}.(.[0-9]){1,}?.?(Final).zip' \
+      | sort \
+      | uniq \
+      | egrep -o '[0-9]{1,}(.[0-9]){1,}' \
+      | tail -1
+    )
   fi
-  extract "wildfly-${1}.Final.zip"
-  start "wildfly-${1}.Final"
+  echo "wildfly-${VERSION}.Final.zip"
+  curl -OL --progress-bar "${WILDFLY_BASE_URL}/${VERSION}.Final/wildfly-${VERSION}.Final.zip"
+  extract "wildfly-${VERSION}.Final.zip"
+  start "wildfly-${VERSION}.Final"
   cleanup
 }
 
 extract() {
-  for cli in mkdir mv cd unzip
-   do
-    case $cli in
-       "mkdir")
-               mkdir -p /tmp/install.$$
-         ;;
-       "mv")
-         mv "$1" /tmp/install.$$
-         ;;
-       "cd")
-         cd /tmp/install.$$
-         ;;
-       "unzip")
-         unzip /tmp/install.$$/$1
-         ;;
-    esac
-  done
+
+  cat > wildfly-extract.sh <<EOF
+mkdir -p /tmp/install.$$
+mv "$1" /tmp/install.$$
+cd /tmp/install.$$
+unzip /tmp/install.$$/$1
+EOF
+
+sh wildfly-extract.sh
+rm -f wildfly-extract.sh
+
 }
 
 start()
@@ -57,8 +62,22 @@ cleanup()
 
 main()
 {
-  read -p "Qual versão do WildFly você deseja fazer download: " version
-  wildfly "$version"
+  [ $# -eq 0 ] && wildfly
+
+  while [ $# -ne 0 ]
+  do
+    case $1 in
+       "-i")
+         read -p "Qual versão do WildFly você deseja fazer download: " version
+         wildfly "$version"
+       ;;
+       "-v")
+         shift
+         wildfly "$1"
+    esac
+          shift
+  done
+  exit 0
 }
 
-main
+main $@
