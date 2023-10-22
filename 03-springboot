@@ -4,7 +4,7 @@ curl "https://search.maven.org/solrsearch/select?q=g:org.springframework.boot+AN
 egrep -o '([0-9]){1,}\.([0-9]){1,}' spring-boot-starter | sort | uniq | tail -3 | while read line
 do
  VERSION=$( egrep "^${line}" spring-boot-starter | sort | tail -1 )
-cat > pom.xml <<EOF
+cat <<EOF
 <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -12,5 +12,4 @@ cat > pom.xml <<EOF
     <version>${VERSION}</version>
 </dependency>
 EOF
-cat pom.xml
 done
