@@ -1,0 +1,16 @@
+#!/bin/sh
+
+curl "https://search.maven.org/solrsearch/select?q=g:org.springframework.boot+AND+a:spring-boot-starter&core=gav&rows=20&wt=json" 2>/dev/null | jq | egrep -o '"v":.*' | egrep -o '([0-9]){1,}\.([0-9]){1,}\.([0-9]){1,}' > spring-boot-starter
+egrep -o '([0-9]){1,}\.([0-9]){1,}' spring-boot-starter | sort | uniq | tail -3 | while read line
+do
+ VERSION=$( egrep "^${line}" spring-boot-starter | sort | tail -1 )
+cat > pom.xml <<EOF
+<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+    <version>${VERSION}</version>
+</dependency>
+EOF
+cat pom.xml
+done
