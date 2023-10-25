@@ -1,4 +1,4 @@
-# Become DevOps Engineer - 101
+# DevOps Engineer - 101
 
 ### Getting WildFly Latest Version and run the entire script
 ```
